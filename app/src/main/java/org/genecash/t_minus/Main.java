@@ -181,10 +181,29 @@ public class Main extends Activity {
                 minutes %= 60;
                 hours %= 24;
 
-                String time = ((days == 0) ? "" : String.format("%d:", days)) +
-                              ((days == 0 && hours == 0) ? "" : String.format("%02d:", hours)) +
-                              ((days == 0 && hours == 0 && minutes == 0) ? "" : String.format("%02d:", minutes)) +
-                              String.format("%02d", seconds);
+                String time = "";
+                if (days != 0) {
+                    time = String.format("%d:", days);
+                }
+                if (time.equals("")) {
+                    if (hours != 0) {
+                        time = String.format("%d:", hours);
+                    }
+                } else {
+                    time += String.format("%02d:", hours);
+                }
+                if (time.equals("")) {
+                    if (minutes != 0) {
+                        time = String.format("%d:", minutes);
+                    }
+                } else {
+                    time += String.format("%02d:", minutes);
+                }
+                if (time.equals("")) {
+                    time += String.format("%d", seconds);
+                } else {
+                    time += String.format("%02d", seconds);
+                }
 
                 textCountdown.setText(time);
             }
@@ -194,6 +213,7 @@ public class Main extends Activity {
                 Toast.makeText(ctx, "Done!", Toast.LENGTH_LONG).show();
             }
         };
+
         timer.start();
     }
 }

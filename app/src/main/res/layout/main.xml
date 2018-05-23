@@ -26,30 +26,36 @@
         android:layout_height = "wrap_content"
         android:layout_gravity = "center"
         android:layout_marginBottom = "40px">
-        <Button
-            android:id = "@+id/set_now"
-            android:layout_width = "wrap_content"
-            android:layout_height = "wrap_content"
-            android:text = "Now" />
-        <Button
-            android:id = "@+id/set_time"
+        <NumberPicker
+            android:id = "@+id/hours"
             android:layout_width = "wrap_content"
             android:layout_height = "wrap_content" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
-        android:layout_gravity = "center"
-        android:layout_marginBottom = "40px">
-        <TextView
+        <NumberPicker
+            android:id = "@+id/minutes"
             android:layout_width = "wrap_content"
-            android:layout_height = "wrap_content"
-            android:text = "Seconds:" />
-        <EditText
+            android:layout_height = "wrap_content" />
+        <NumberPicker
             android:id = "@+id/seconds"
             android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content" />
+        <RadioGroup
+            android:layout_width = "wrap_content"
             android:layout_height = "wrap_content"
-            android:inputType = "number" />
+            android:layout_gravity = "center_vertical"
+            android:layout_marginLeft = "40px">
+            <RadioButton
+                android:id = "@+id/am"
+                android:layout_width = "wrap_content"
+                android:layout_height = "wrap_content"
+                android:onClick = "clickedAM"
+                android:text = "AM" />
+            <RadioButton
+                android:id = "@+id/pm"
+                android:layout_width = "wrap_content"
+                android:layout_height = "wrap_content"
+                android:onClick = "clickedPM"
+                android:text = "PM" />
+        </RadioGroup>
     </LinearLayout>
     <TextView
         android:id = "@+id/countdown"

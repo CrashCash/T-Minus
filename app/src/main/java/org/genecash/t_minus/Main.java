@@ -2,20 +2,17 @@ package org.genecash.t_minus;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -31,8 +28,9 @@ public class Main extends Activity {
     SimpleDateFormat formatDate = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     SimpleDateFormat formatTime = new SimpleDateFormat("hh:mm:ss a", Locale.US);
     TextView textCountdown;
-    Button btnSetDate, btnSetTime;
-    EditText seconds;
+    Button btnSetDate;
+    NumberPicker pickHours, pickMinutes, pickSeconds;
+    RadioButton radioAM, radioPM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,64 +77,72 @@ public class Main extends Activity {
             }
         });
 
-        // hook up time setting button
-        btnSetTime = (Button) findViewById(R.id.set_time);
-        btnSetTime.setText(formatTime.format(calendar.getTime()));
-        btnSetTime.setOnClickListener(new View.OnClickListener() {
+        // hook up time settings
+        pickHours = (NumberPicker) findViewById(R.id.hours);
+        pickHours.setMinValue(1);
+        pickHours.setMaxValue(12);
+        pickHours.setValue(calendar.get(Calendar.HOUR));
+        pickHours.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onClick(View v) {
-                TimePickerDialog picker = new TimePickerDialog(ctx, new TimePickerDialog.OnTimeSetListener() {
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        calendar.set(Calendar.MINUTE, minute);
-                        btnSetTime.setText(formatTime.format(calendar.getTime()));
-                        save();
-                    }
-                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
-                picker.show();
-            }
-        });
-
-        // set time when clicked
-        Button btnSetNow = (Button) findViewById(R.id.set_now);
-        btnSetNow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar cal = Calendar.getInstance();
-                int h = cal.get(Calendar.HOUR_OF_DAY);
-                int m = cal.get(Calendar.MINUTE);
-                calendar.set(Calendar.HOUR_OF_DAY, h);
-                calendar.set(Calendar.MINUTE, m);
-                btnSetTime.setText(formatTime.format(calendar.getTime()));
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                calendar.set(Calendar.HOUR, newVal);
                 save();
             }
         });
 
-        // hook up seconds field
-        seconds = (EditText) findViewById(R.id.seconds);
-        seconds.setText("" + calendar.get(Calendar.SECOND));
-        seconds.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        pickMinutes = (NumberPicker) findViewById(R.id.minutes);
+        pickMinutes.setMinValue(0);
+        pickMinutes.setMaxValue(59);
+        pickMinutes.setValue(calendar.get(Calendar.MINUTE));
+        pickMinutes.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    // set when enter is pressed
-                    int val = Integer.parseInt(seconds.getText().toString());
-                    if (val < 0 || val > 59) {
-                        Toast.makeText(ctx, "Invalid seconds value", Toast.LENGTH_LONG).show();
-                        seconds.setText("" + calendar.get(Calendar.SECOND));
-                        return false;
-                    }
-                    calendar.set(Calendar.SECOND, val);
-                    btnSetTime.setText(formatTime.format(calendar.getTime()));
-                    save();
-                }
-                return false;
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                calendar.set(Calendar.MINUTE, newVal);
+                save();
             }
         });
+
+        pickSeconds = (NumberPicker) findViewById(R.id.seconds);
+        pickSeconds.setMinValue(0);
+        pickSeconds.setMaxValue(59);
+        pickSeconds.setValue(calendar.get(Calendar.SECOND));
+        pickSeconds.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                calendar.set(Calendar.SECOND, newVal);
+                save();
+            }
+        });
+
+        radioAM = (RadioButton) findViewById(R.id.am);
+        radioPM = (RadioButton) findViewById(R.id.pm);
+        setAmPm(calendar.get(Calendar.AM_PM));
 
         // start countdown
         textCountdown = (TextView) findViewById(R.id.countdown);
         startCount();
+    }
+
+    // AM radio button clicked
+    public void clickedAM(View view) {
+        calendar.set(Calendar.AM_PM, Calendar.AM);
+        save();
+    }
+
+    // PM radio button clicked
+    public void clickedPM(View view) {
+        calendar.set(Calendar.AM_PM, Calendar.PM);
+        save();
+    }
+
+    // set radio buttons
+    void setAmPm(int ampm) {
+        if (ampm == Calendar.AM) {
+            radioAM.setChecked(true);
+        }
+        if (ampm == Calendar.PM) {
+            radioPM.setChecked(true);
+        }
     }
 
     // save new setting & reset countdown

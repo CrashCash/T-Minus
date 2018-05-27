@@ -29,15 +29,18 @@
         <NumberPicker
             android:id = "@+id/hours"
             android:layout_width = "wrap_content"
-            android:layout_height = "wrap_content" />
+            android:layout_height = "wrap_content"
+            android:theme = "@style/NumberPickerText" />
         <NumberPicker
             android:id = "@+id/minutes"
             android:layout_width = "wrap_content"
-            android:layout_height = "wrap_content" />
+            android:layout_height = "wrap_content"
+            android:theme = "@style/NumberPickerText" />
         <NumberPicker
             android:id = "@+id/seconds"
             android:layout_width = "wrap_content"
-            android:layout_height = "wrap_content" />
+            android:layout_height = "wrap_content"
+            android:theme = "@style/NumberPickerText" />
         <RadioGroup
             android:layout_width = "wrap_content"
             android:layout_height = "wrap_content"
@@ -62,5 +65,5 @@
         android:layout_width = "wrap_content"
         android:layout_height = "wrap_content"
         android:layout_gravity = "center"
-        android:textSize = "60sp" />
+        android:textSize = "80dp" />
 </LinearLayout>

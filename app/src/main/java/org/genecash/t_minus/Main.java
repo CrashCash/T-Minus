@@ -101,6 +101,13 @@ public class Main extends Activity {
                 save();
             }
         });
+        // add leading zero
+        pickMinutes.setFormatter(new NumberPicker.Formatter() {
+            @Override
+            public String format(int value) {
+                return String.format("%02d", value);
+            }
+        });
 
         pickSeconds = (NumberPicker) findViewById(R.id.seconds);
         pickSeconds.setMinValue(0);
@@ -111,6 +118,13 @@ public class Main extends Activity {
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 calendar.set(Calendar.SECOND, newVal);
                 save();
+            }
+        });
+        // add leading zero
+        pickSeconds.setFormatter(new NumberPicker.Formatter() {
+            @Override
+            public String format(int value) {
+                return String.format("%02d", value);
             }
         });
 

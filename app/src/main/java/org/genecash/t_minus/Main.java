@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -161,6 +162,8 @@ public class Main extends Activity {
 
     // save new setting & reset countdown
     void save() {
+        // Log.e("T-Minus", "Setting: " + calendar);
+        // NumberPicker.OnValueChangeListener fires a LOT
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(KEY_SETTING, calendar.getTimeInMillis());
         editor.apply();
@@ -185,9 +188,9 @@ public class Main extends Activity {
         }
 
         // start timer
-        timer = new CountDownTimer(count, 500) {
+        timer = new CountDownTimer(count, DateUtils.SECOND_IN_MILLIS / 2) {
             public void onTick(long millisUntilFinished) {
-                long seconds = millisUntilFinished / 1000;
+                long seconds = millisUntilFinished / DateUtils.SECOND_IN_MILLIS;
                 long minutes = seconds / 60;
                 long hours = minutes / 60;
                 long days = hours / 24;

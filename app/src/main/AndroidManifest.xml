@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android = "http://schemas.android.com/apk/res/android"
           package = "org.genecash.t_minus"
-          android:versionCode = "1530086617"
-          android:versionName = "27-JUN-2018 04:03:37 AM">
+          android:versionCode = "1538262663"
+          android:versionName = "29-SEP-2018 07:11:03 PM">
 
     <application
         android:icon = "@mipmap/ic_launcher"

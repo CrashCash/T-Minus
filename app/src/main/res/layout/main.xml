@@ -62,8 +62,9 @@
     </LinearLayout>
     <TextView
         android:id = "@+id/countdown"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
-        android:layout_gravity = "center"
-        android:textSize = "70dp" />
+        android:layout_width = "match_parent"
+        android:layout_height = "100dp"
+        android:autoSizeTextType = "uniform"
+        android:gravity = "center"
+        android:maxLines = "1" />
 </LinearLayout>

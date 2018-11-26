@@ -46,7 +46,7 @@ public class Main extends Activity {
         calendar.setTimeInMillis(setting);
 
         // hook up date setting button
-        btnSetDate = (Button) findViewById(R.id.set_date);
+        btnSetDate = findViewById(R.id.set_date);
         btnSetDate.setText(formatDate.format(calendar.getTime()));
         btnSetDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +65,7 @@ public class Main extends Activity {
         });
 
         // set date when clicked
-        Button btnSetToday = (Button) findViewById(R.id.set_today);
+        Button btnSetToday = findViewById(R.id.set_today);
         btnSetToday.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,7 +79,7 @@ public class Main extends Activity {
         });
 
         // hook up time settings
-        pickHours = (NumberPicker) findViewById(R.id.hours);
+        pickHours = findViewById(R.id.hours);
         pickHours.setMinValue(1);
         pickHours.setMaxValue(12);
         pickHours.setValue(calendar.get(Calendar.HOUR));
@@ -91,7 +91,7 @@ public class Main extends Activity {
             }
         });
 
-        pickMinutes = (NumberPicker) findViewById(R.id.minutes);
+        pickMinutes = findViewById(R.id.minutes);
         pickMinutes.setMinValue(0);
         pickMinutes.setMaxValue(59);
         pickMinutes.setValue(calendar.get(Calendar.MINUTE));
@@ -110,7 +110,7 @@ public class Main extends Activity {
             }
         });
 
-        pickSeconds = (NumberPicker) findViewById(R.id.seconds);
+        pickSeconds = findViewById(R.id.seconds);
         pickSeconds.setMinValue(0);
         pickSeconds.setMaxValue(59);
         pickSeconds.setValue(calendar.get(Calendar.SECOND));
@@ -129,12 +129,12 @@ public class Main extends Activity {
             }
         });
 
-        radioAM = (RadioButton) findViewById(R.id.am);
-        radioPM = (RadioButton) findViewById(R.id.pm);
+        radioAM = findViewById(R.id.am);
+        radioPM = findViewById(R.id.pm);
         setAmPm(calendar.get(Calendar.AM_PM));
 
         // start countdown
-        textCountdown = (TextView) findViewById(R.id.countdown);
+        textCountdown = findViewById(R.id.countdown);
         startCount();
     }
 

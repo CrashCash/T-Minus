@@ -5,7 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -14,7 +14,6 @@ import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,7 +23,6 @@ public class Main extends Activity {
     static final String KEY_SETTING = "setting";
     SharedPreferences prefs;
     Context ctx;
-    CountDownTimer timer = null;
     Calendar calendar;
     SimpleDateFormat formatDate = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     SimpleDateFormat formatTime = new SimpleDateFormat("hh:mm:ss a", Locale.US);
@@ -32,6 +30,56 @@ public class Main extends Activity {
     Button btnSetDate;
     NumberPicker pickHours, pickMinutes, pickSeconds;
     RadioButton radioAM, radioPM;
+    long launchTime;
+
+    //runs without a timer by reposting this handler at the end of the runnable
+    Handler timerHandler = new Handler();
+
+    Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long millisUntilLaunch = launchTime - System.currentTimeMillis();
+            long seconds = Math.abs(millisUntilLaunch / DateUtils.SECOND_IN_MILLIS);
+            long minutes = seconds / 60;
+            long hours = minutes / 60;
+            long days = hours / 24;
+            seconds %= 60;
+            minutes %= 60;
+            hours %= 24;
+
+            String time = "";
+            if (days != 0) {
+                time = String.format("%d:", days);
+            }
+            if (time.equals("")) {
+                if (hours != 0) {
+                    time = String.format("%d:", hours);
+                }
+            } else {
+                time += String.format("%02d:", hours);
+            }
+            if (time.equals("")) {
+                if (minutes != 0) {
+                    time = String.format("%d:", minutes);
+                }
+            } else {
+                time += String.format("%02d:", minutes);
+            }
+            if (time.equals("")) {
+                time += String.format("%d", seconds);
+            } else {
+                time += String.format("%02d", seconds);
+            }
+            if (millisUntilLaunch > 0) {
+                time = "-" + time;
+            } else {
+                time = "+" + time;
+            }
+
+            textCountdown.setText(time);
+            timerHandler.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,10 +180,12 @@ public class Main extends Activity {
         radioAM = findViewById(R.id.am);
         radioPM = findViewById(R.id.pm);
         setAmPm(calendar.get(Calendar.AM_PM));
+        calendar.set(Calendar.MILLISECOND, 0);
 
         // start countdown
         textCountdown = findViewById(R.id.countdown);
-        startCount();
+        launchTime = calendar.getTimeInMillis();
+        timerHandler.postDelayed(timerRunnable, 0);
     }
 
     // AM radio button clicked
@@ -167,70 +217,12 @@ public class Main extends Activity {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(KEY_SETTING, calendar.getTimeInMillis());
         editor.apply();
-        startCount();
+        launchTime = calendar.getTimeInMillis();
     }
 
-    // start countdown timer
-    void startCount() {
-        if (timer != null) {
-            // stop an already running timer
-            timer.cancel();
-        }
-
-        // clean up calendar
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        // if it's expired, then punt
-        long count = calendar.getTimeInMillis() - System.currentTimeMillis();
-        if (count < 0) {
-            textCountdown.setText("Expired");
-            return;
-        }
-
-        // start timer
-        timer = new CountDownTimer(count, DateUtils.SECOND_IN_MILLIS / 2) {
-            public void onTick(long millisUntilFinished) {
-                long seconds = millisUntilFinished / DateUtils.SECOND_IN_MILLIS;
-                long minutes = seconds / 60;
-                long hours = minutes / 60;
-                long days = hours / 24;
-                seconds %= 60;
-                minutes %= 60;
-                hours %= 24;
-
-                String time = "";
-                if (days != 0) {
-                    time = String.format("%d:", days);
-                }
-                if (time.equals("")) {
-                    if (hours != 0) {
-                        time = String.format("%d:", hours);
-                    }
-                } else {
-                    time += String.format("%02d:", hours);
-                }
-                if (time.equals("")) {
-                    if (minutes != 0) {
-                        time = String.format("%d:", minutes);
-                    }
-                } else {
-                    time += String.format("%02d:", minutes);
-                }
-                if (time.equals("")) {
-                    time += String.format("%d", seconds);
-                } else {
-                    time += String.format("%02d", seconds);
-                }
-
-                textCountdown.setText(time);
-            }
-
-            public void onFinish() {
-                textCountdown.setText("Expired");
-                Toast.makeText(ctx, "Done!", Toast.LENGTH_LONG).show();
-            }
-        };
-
-        timer.start();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timerHandler.removeCallbacks(timerRunnable);
     }
 }

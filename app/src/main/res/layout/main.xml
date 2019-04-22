@@ -58,9 +58,23 @@
     <TextView
         android:id = "@+id/countdown"
         android:layout_width = "match_parent"
-        android:layout_height = "match_parent"
+        android:layout_height = "wrap_content"
+        android:layout_margin = "0px"
+        android:layout_weight = "2"
         android:autoSizeMaxTextSize = "250sp"
         android:autoSizeTextType = "uniform"
         android:gravity = "center_horizontal"
-        android:maxLines = "1" />
+        android:maxLines = "1"
+        android:padding = "0px" />
+    <TextView
+        android:id = "@+id/tplus"
+        android:layout_width = "match_parent"
+        android:layout_height = "wrap_content"
+        android:layout_margin = "0px"
+        android:layout_weight = "1"
+        android:autoSizeMaxTextSize = "250sp"
+        android:autoSizeTextType = "uniform"
+        android:gravity = "center_horizontal"
+        android:maxLines = "1"
+        android:padding = "0px" />
 </LinearLayout>

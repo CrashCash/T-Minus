@@ -27,6 +27,7 @@ public class Main extends Activity {
     SimpleDateFormat formatDate = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     SimpleDateFormat formatTime = new SimpleDateFormat("hh:mm:ss a", Locale.US);
     TextView textCountdown;
+    TextView textSeconds;
     Button btnSetDate;
     NumberPicker pickHours, pickMinutes, pickSeconds;
     RadioButton radioAM, radioPM;
@@ -43,6 +44,14 @@ public class Main extends Activity {
             long minutes = seconds / 60;
             long hours = minutes / 60;
             long days = hours / 24;
+
+            if (millisUntilLaunch < 0 && seconds < 9999) {
+                textSeconds.setText("" + seconds);
+                textSeconds.setVisibility(View.VISIBLE);
+            } else {
+                textSeconds.setVisibility(View.GONE);
+            }
+
             seconds %= 60;
             minutes %= 60;
             hours %= 24;
@@ -70,14 +79,9 @@ public class Main extends Activity {
             } else {
                 time += String.format("%02d", seconds);
             }
-            if (millisUntilLaunch > 0) {
-                time = "-" + time;
-            } else {
-                time = "+" + time;
-            }
 
             textCountdown.setText(time);
-            timerHandler.postDelayed(this, 500);
+            timerHandler.postDelayed(this, 250);
         }
     };
 
@@ -184,6 +188,7 @@ public class Main extends Activity {
 
         // start countdown
         textCountdown = findViewById(R.id.countdown);
+        textSeconds = findViewById(R.id.tplus);
         launchTime = calendar.getTimeInMillis();
         timerHandler.postDelayed(timerRunnable, 0);
     }

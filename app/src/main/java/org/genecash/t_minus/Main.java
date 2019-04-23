@@ -32,6 +32,7 @@ public class Main extends Activity {
     NumberPicker pickHours, pickMinutes, pickSeconds;
     RadioButton radioAM, radioPM;
     long launchTime;
+    long secondsOld;
 
     //runs without a timer by reposting this handler at the end of the runnable
     Handler timerHandler = new Handler();
@@ -41,47 +42,50 @@ public class Main extends Activity {
         public void run() {
             long millisUntilLaunch = launchTime - System.currentTimeMillis();
             long seconds = Math.abs(millisUntilLaunch / DateUtils.SECOND_IN_MILLIS);
-            long minutes = seconds / 60;
-            long hours = minutes / 60;
-            long days = hours / 24;
+            if (seconds != secondsOld) {
+                secondsOld = seconds;
+                long minutes = seconds / 60;
+                long hours = minutes / 60;
+                long days = hours / 24;
 
-            if (millisUntilLaunch < 0 && seconds < 9999) {
-                textSeconds.setText("" + seconds);
-                textSeconds.setVisibility(View.VISIBLE);
-            } else {
-                textSeconds.setVisibility(View.GONE);
-            }
-
-            seconds %= 60;
-            minutes %= 60;
-            hours %= 24;
-
-            String time = "";
-            if (days != 0) {
-                time = String.format("%d:", days);
-            }
-            if (time.equals("")) {
-                if (hours != 0) {
-                    time = String.format("%d:", hours);
+                if (millisUntilLaunch < 0 && seconds < 9999) {
+                    textSeconds.setText("" + seconds);
+                    textSeconds.setVisibility(View.VISIBLE);
+                } else {
+                    textSeconds.setVisibility(View.GONE);
                 }
-            } else {
-                time += String.format("%02d:", hours);
-            }
-            if (time.equals("")) {
-                if (minutes != 0) {
-                    time = String.format("%d:", minutes);
-                }
-            } else {
-                time += String.format("%02d:", minutes);
-            }
-            if (time.equals("")) {
-                time += String.format("%d", seconds);
-            } else {
-                time += String.format("%02d", seconds);
-            }
 
-            textCountdown.setText(time);
-            timerHandler.postDelayed(this, 250);
+                seconds %= 60;
+                minutes %= 60;
+                hours %= 24;
+
+                String time = "";
+                if (days != 0) {
+                    time = String.format("%d:", days);
+                }
+                if (time.equals("")) {
+                    if (hours != 0) {
+                        time = String.format("%d:", hours);
+                    }
+                } else {
+                    time += String.format("%02d:", hours);
+                }
+                if (time.equals("")) {
+                    if (minutes != 0) {
+                        time = String.format("%d:", minutes);
+                    }
+                } else {
+                    time += String.format("%02d:", minutes);
+                }
+                if (time.equals("")) {
+                    time += String.format("%d", seconds);
+                } else {
+                    time += String.format("%02d", seconds);
+                }
+
+                textCountdown.setText(time);
+            }
+            timerHandler.postDelayed(this, 200);
         }
     };
 

@@ -194,7 +194,6 @@ public class Main extends Activity {
         textCountdown = findViewById(R.id.countdown);
         textSeconds = findViewById(R.id.tplus);
         launchTime = calendar.getTimeInMillis();
-        timerHandler.postDelayed(timerRunnable, 0);
     }
 
     // AM radio button clicked
@@ -233,5 +232,11 @@ public class Main extends Activity {
     protected void onPause() {
         super.onPause();
         timerHandler.removeCallbacks(timerRunnable);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timerHandler.postDelayed(timerRunnable, 0);
     }
 }

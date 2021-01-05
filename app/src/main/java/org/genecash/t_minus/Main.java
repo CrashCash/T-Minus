@@ -33,6 +33,9 @@ public class Main extends Activity {
     RadioButton radioAM, radioPM;
     long launchTime;
     long secondsOld;
+    int currentDay;
+    int currentMonth;
+    int currentYear;
 
     //runs without a timer by reposting this handler at the end of the runnable
     Handler timerHandler = new Handler();
@@ -100,6 +103,9 @@ public class Main extends Activity {
         long setting = prefs.getLong(KEY_SETTING, System.currentTimeMillis());
         calendar = Calendar.getInstance();
         calendar.setTimeInMillis(setting);
+        currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        currentMonth = calendar.get(Calendar.MONTH);
+        currentYear = calendar.get(Calendar.YEAR);
 
         // hook up date setting button
         btnSetDate = findViewById(R.id.set_date);
@@ -109,6 +115,9 @@ public class Main extends Activity {
             public void onClick(View v) {
                 DatePickerDialog picker = new DatePickerDialog(ctx, new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        currentDay = dayOfMonth;
+                        currentMonth = monthOfYear;
+                        currentYear = year;
                         calendar.set(Calendar.YEAR, year);
                         calendar.set(Calendar.MONTH, monthOfYear);
                         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -120,16 +129,26 @@ public class Main extends Activity {
             }
         });
 
-        // set date when clicked
+        // set date to today when clicked
         Button btnSetToday = findViewById(R.id.set_today);
         btnSetToday.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar cal = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, cal.get(Calendar.YEAR));
-                calendar.set(Calendar.MONTH, cal.get(Calendar.MONTH));
-                calendar.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH));
-                btnSetDate.setText(formatDate.format(cal.getTime()));
+                calendar = Calendar.getInstance();
+                currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+                currentMonth = calendar.get(Calendar.MONTH);
+                currentYear = calendar.get(Calendar.YEAR);
+                calendar.set(Calendar.HOUR, pickHours.getValue());
+                calendar.set(Calendar.MINUTE, pickMinutes.getValue());
+                calendar.set(Calendar.SECOND, pickSeconds.getValue());
+                calendar.set(Calendar.MILLISECOND, 0);
+                if (radioAM.isChecked()) {
+                    calendar.set(Calendar.AM_PM, Calendar.AM);
+                }
+                if (radioPM.isChecked()) {
+                    calendar.set(Calendar.AM_PM, Calendar.PM);
+                }
+                btnSetDate.setText(formatDate.format(calendar.getTime()));
                 save();
             }
         });
@@ -143,6 +162,15 @@ public class Main extends Activity {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 calendar.set(Calendar.HOUR, newVal);
+                calendar.set(Calendar.YEAR, currentYear);
+                calendar.set(Calendar.MONTH, currentMonth);
+                calendar.set(Calendar.DAY_OF_MONTH, currentDay);
+                if (radioAM.isChecked()) {
+                    calendar.set(Calendar.AM_PM, Calendar.AM);
+                }
+                if (radioPM.isChecked()) {
+                    calendar.set(Calendar.AM_PM, Calendar.PM);
+                }
                 save();
             }
         });

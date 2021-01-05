@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android = "http://schemas.android.com/apk/res/android"
           package = "org.genecash.t_minus"
-          android:versionCode = "1561595386"
-          android:versionName = "26-JUN-2019 08:29:46 PM">
+          android:versionCode = "1609860119"
+          android:versionName = "05-JAN-2021 10:21:59 AM">
 
     <application
+        android:theme="@android:style/Theme.Material"
         android:icon = "@mipmap/ic_launcher"
         android:label = "@string/app_name">
         <activity android:name = ".Main">

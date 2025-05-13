@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -16,8 +18,12 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class Main extends Activity {
     static final String KEY_SETTING = "setting";
@@ -37,7 +43,10 @@ public class Main extends Activity {
     int currentMonth;
     int currentYear;
 
-    //runs without a timer by reposting this handler at the end of the runnable
+    Map<Integer, Map<Integer, List<Integer>>> mapSounds;
+    MediaPlayer mPlayer;
+
+    // runs without a timer by reposting this handler at the end of the runnable
     Handler timerHandler = new Handler();
 
     Runnable timerRunnable = new Runnable() {
@@ -87,6 +96,17 @@ public class Main extends Activity {
                 }
 
                 textCountdown.setText(time);
+
+                // talk to me, goose!
+                if (hours == 0 && millisUntilLaunch >= 0) {
+                    Map<Integer, List<Integer>> map = mapSounds.get(Integer.valueOf((int) minutes));
+                    if (map != null) {
+                        List<Integer> sounds = map.get(Integer.valueOf((int) seconds));
+                        if (sounds != null) {
+                            new Handler().postDelayed(() -> speak(sounds), 0);
+                        }
+                    }
+                }
             }
             timerHandler.postDelayed(this, 200);
         }
@@ -97,6 +117,8 @@ public class Main extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         ctx = this;
+
+        createSoundMap();
 
         // retrieve current countdown setting
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -266,5 +288,76 @@ public class Main extends Activity {
     protected void onResume() {
         super.onResume();
         timerHandler.postDelayed(timerRunnable, 0);
+    }
+
+    void createSoundMap() {
+        Map<Integer, List<Integer>> map;
+        List<Integer> sounds;
+        int id1, id2;
+        String pkg = getPackageName();
+
+        mapSounds = new HashMap<>();
+
+        // sounds for last minute
+        map = new HashMap<>();
+        id1 = getResources().getIdentifier("digit60", "raw", pkg);
+        id2 = getResources().getIdentifier("seconds", "raw", pkg);
+        sounds = new ArrayList<>();
+        sounds.add(id1);
+        sounds.add(id2);
+        map.put(0, sounds);
+        mapSounds.put(1, map);
+
+        // seconds
+        map = new HashMap<>();
+        for (int i = 50; i > 10; i -= 10) {
+            id1 = getResources().getIdentifier("digit" + i, "raw", pkg);
+            sounds = new ArrayList<>();
+            sounds.add(id1);
+            sounds.add(id2);
+            map.put(i, sounds);
+        }
+        mapSounds.put(0, map);
+
+        // last 10 seconds
+        for (int i = 0; i < 11; i++) {
+            id1 = getResources().getIdentifier("digit" + i, "raw", pkg);
+            sounds = new ArrayList<>();
+            sounds.add(id1);
+            map.put(i, sounds);
+        }
+        mapSounds.put(0, map);
+
+        // sounds for last 15 minutes
+        id2 = getResources().getIdentifier("minutes", "raw", pkg);
+        for (int i = 2; i < 16; i++) {
+            map = new HashMap<>();
+            id1 = getResources().getIdentifier("digit" + i, "raw", pkg);
+            sounds = new ArrayList<>();
+            sounds.add(id1);
+            sounds.add(id2);
+            map.put(0, sounds);
+            mapSounds.put(i, map);
+        }
+    }
+
+    void speak(List<Integer> ids) {
+        for (int id : ids) {
+            while (mPlayer != null && mPlayer.isPlaying()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            if (mPlayer != null) {
+                mPlayer.reset();
+                mPlayer.release();
+            }
+
+            Log.d("t_minus", "id:" + id);
+            mPlayer = MediaPlayer.create(this, id);
+            mPlayer.start();
+        }
     }
 }

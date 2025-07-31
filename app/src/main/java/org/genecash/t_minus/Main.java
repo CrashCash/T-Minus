@@ -12,6 +12,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
@@ -35,6 +36,7 @@ public class Main extends Activity {
     TextView textCountdown;
     TextView textSeconds;
     Button btnSetDate;
+    CheckBox cbTalk;
     NumberPicker pickHours, pickMinutes, pickSeconds;
     RadioButton radioAM, radioPM;
     long launchTime;
@@ -98,7 +100,7 @@ public class Main extends Activity {
                 textCountdown.setText(time);
 
                 // talk to me, goose!
-                if (hours == 0 && millisUntilLaunch >= 0) {
+                if (cbTalk.isChecked() && hours == 0 && millisUntilLaunch >= 0) {
                     Map<Integer, List<Integer>> map = mapSounds.get(Integer.valueOf((int) minutes));
                     if (map != null) {
                         List<Integer> sounds = map.get(Integer.valueOf((int) seconds));
@@ -239,6 +241,8 @@ public class Main extends Activity {
         radioPM = findViewById(R.id.pm);
         setAmPm(calendar.get(Calendar.AM_PM));
         calendar.set(Calendar.MILLISECOND, 0);
+
+        cbTalk = findViewById(R.id.cb_talk);
 
         // start countdown
         textCountdown = findViewById(R.id.countdown);

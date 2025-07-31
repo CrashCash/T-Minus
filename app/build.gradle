@@ -4,8 +4,8 @@ android {
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "org.genecash.t_minus"
-        minSdk 33
-        targetSdk 33
+        minSdk 31
+        targetSdk 31
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

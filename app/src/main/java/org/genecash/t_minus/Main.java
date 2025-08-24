@@ -1,7 +1,9 @@
 package org.genecash.t_minus;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
@@ -9,14 +11,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
-import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,18 +34,13 @@ public class Main extends Activity {
     Context ctx;
     Calendar calendar;
     SimpleDateFormat formatDate = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
-    SimpleDateFormat formatTime = new SimpleDateFormat("hh:mm:ss a", Locale.US);
+    SimpleDateFormat formatTime = new SimpleDateFormat("h:mm:ss a", Locale.US);
     TextView textCountdown;
     TextView textSeconds;
-    Button btnSetDate;
+    Button btnSetDate, btnSetTime;
     CheckBox cbTalk;
-    NumberPicker pickHours, pickMinutes, pickSeconds;
-    RadioButton radioAM, radioPM;
     long launchTime;
     long secondsOld;
-    int currentDay;
-    int currentMonth;
-    int currentYear;
 
     Map<Integer, Map<Integer, List<Integer>>> mapSounds;
     MediaPlayer mPlayer;
@@ -127,120 +124,74 @@ public class Main extends Activity {
         long setting = prefs.getLong(KEY_SETTING, System.currentTimeMillis());
         calendar = Calendar.getInstance();
         calendar.setTimeInMillis(setting);
-        currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-        currentMonth = calendar.get(Calendar.MONTH);
-        currentYear = calendar.get(Calendar.YEAR);
-
-        // hook up date setting button
-        btnSetDate = findViewById(R.id.set_date);
-        btnSetDate.setText(formatDate.format(calendar.getTime()));
-        btnSetDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatePickerDialog picker = new DatePickerDialog(ctx, new DatePickerDialog.OnDateSetListener() {
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        currentDay = dayOfMonth;
-                        currentMonth = monthOfYear;
-                        currentYear = year;
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, monthOfYear);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        btnSetDate.setText(formatDate.format(calendar.getTime()));
-                        save();
-                    }
-                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                picker.show();
-            }
-        });
+        calendar.set(Calendar.MILLISECOND, 0);
 
         // set date to today when clicked
         Button btnSetToday = findViewById(R.id.set_today);
-        btnSetToday.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calendar = Calendar.getInstance();
-                currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-                currentMonth = calendar.get(Calendar.MONTH);
-                currentYear = calendar.get(Calendar.YEAR);
-                calendar.set(Calendar.HOUR, pickHours.getValue());
-                calendar.set(Calendar.MINUTE, pickMinutes.getValue());
-                calendar.set(Calendar.SECOND, pickSeconds.getValue());
-                calendar.set(Calendar.MILLISECOND, 0);
-                if (radioAM.isChecked()) {
-                    calendar.set(Calendar.AM_PM, Calendar.AM);
-                }
-                if (radioPM.isChecked()) {
-                    calendar.set(Calendar.AM_PM, Calendar.PM);
-                }
+        btnSetToday.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH));
+            calendar.set(Calendar.MONTH, c.get(Calendar.MONTH));
+            calendar.set(Calendar.YEAR, c.get(Calendar.YEAR));
+            btnSetDate.setText(formatDate.format(calendar.getTime()));
+            save();
+        });
+
+        // date button
+        btnSetDate = findViewById(R.id.set_date);
+        btnSetDate.setText(formatDate.format(calendar.getTime()));
+        btnSetDate.setOnClickListener(v -> {
+            DatePickerDialog picker = new DatePickerDialog(ctx, (view, year, monthOfYear, dayOfMonth) -> {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, monthOfYear);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 btnSetDate.setText(formatDate.format(calendar.getTime()));
                 save();
-            }
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            picker.show();
         });
 
-        // hook up time settings
-        pickHours = findViewById(R.id.hours);
-        pickHours.setMinValue(1);
-        pickHours.setMaxValue(12);
-        pickHours.setValue(calendar.get(Calendar.HOUR));
-        pickHours.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                calendar.set(Calendar.HOUR, newVal);
-                calendar.set(Calendar.YEAR, currentYear);
-                calendar.set(Calendar.MONTH, currentMonth);
-                calendar.set(Calendar.DAY_OF_MONTH, currentDay);
-                if (radioAM.isChecked()) {
-                    calendar.set(Calendar.AM_PM, Calendar.AM);
-                }
-                if (radioPM.isChecked()) {
-                    calendar.set(Calendar.AM_PM, Calendar.PM);
-                }
+        // time button
+        btnSetTime = findViewById(R.id.set_time);
+        btnSetTime.setText(formatTime.format(calendar.getTime()));
+        btnSetTime.setOnClickListener(v -> {
+            TimePickerDialog picker = new TimePickerDialog(ctx, (view, hour, minute) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                btnSetTime.setText(formatTime.format(calendar.getTime()));
                 save();
-            }
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+            picker.show();
         });
+        btnSetTime.setOnLongClickListener(v -> {
+            AlertDialog.Builder dialogSeconds = new AlertDialog.Builder(this);
+            dialogSeconds.setTitle("Seconds");
+            LinearLayout layout = new LinearLayout(this);
+            layout.setGravity(Gravity.CENTER);
 
-        pickMinutes = findViewById(R.id.minutes);
-        pickMinutes.setMinValue(0);
-        pickMinutes.setMaxValue(59);
-        pickMinutes.setValue(calendar.get(Calendar.MINUTE));
-        pickMinutes.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                calendar.set(Calendar.MINUTE, newVal);
+            NumberPicker picker1 = new NumberPicker(this);
+            picker1.setMaxValue(5);
+            picker1.setMinValue(0);
+            picker1.setValue(calendar.get(Calendar.SECOND) / 10);
+            layout.addView(picker1, 0);
+
+            NumberPicker picker2 = new NumberPicker(this);
+            picker2.setMaxValue(9);
+            picker2.setMinValue(0);
+            picker2.setValue(calendar.get(Calendar.SECOND) % 10);
+            layout.addView(picker2, 1);
+
+            dialogSeconds.setView(layout);
+            dialogSeconds.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+            dialogSeconds.setPositiveButton("OK", (dialog, which) -> {
+                calendar.set(Calendar.SECOND, picker1.getValue() * 10 + picker2.getValue());
+                btnSetTime.setText(formatTime.format(calendar.getTime()));
                 save();
-            }
+                dialog.dismiss();
+            });
+            dialogSeconds.show();
+            return true;
         });
-        // add leading zero
-        pickMinutes.setFormatter(new NumberPicker.Formatter() {
-            @Override
-            public String format(int value) {
-                return String.format("%02d", value);
-            }
-        });
-
-        pickSeconds = findViewById(R.id.seconds);
-        pickSeconds.setMinValue(0);
-        pickSeconds.setMaxValue(59);
-        pickSeconds.setValue(calendar.get(Calendar.SECOND));
-        pickSeconds.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                calendar.set(Calendar.SECOND, newVal);
-                save();
-            }
-        });
-        // add leading zero
-        pickSeconds.setFormatter(new NumberPicker.Formatter() {
-            @Override
-            public String format(int value) {
-                return String.format("%02d", value);
-            }
-        });
-
-        radioAM = findViewById(R.id.am);
-        radioPM = findViewById(R.id.pm);
-        setAmPm(calendar.get(Calendar.AM_PM));
-        calendar.set(Calendar.MILLISECOND, 0);
 
         cbTalk = findViewById(R.id.cb_talk);
 
@@ -248,28 +199,6 @@ public class Main extends Activity {
         textCountdown = findViewById(R.id.countdown);
         textSeconds = findViewById(R.id.tplus);
         launchTime = calendar.getTimeInMillis();
-    }
-
-    // AM radio button clicked
-    public void clickedAM(View view) {
-        calendar.set(Calendar.AM_PM, Calendar.AM);
-        save();
-    }
-
-    // PM radio button clicked
-    public void clickedPM(View view) {
-        calendar.set(Calendar.AM_PM, Calendar.PM);
-        save();
-    }
-
-    // set radio buttons
-    void setAmPm(int ampm) {
-        if (ampm == Calendar.AM) {
-            radioAM.setChecked(true);
-        }
-        if (ampm == Calendar.PM) {
-            radioPM.setChecked(true);
-        }
     }
 
     // save new setting & reset countdown
@@ -359,9 +288,12 @@ public class Main extends Activity {
                 mPlayer.release();
             }
 
-            Log.d("t_minus", "id:" + id);
             mPlayer = MediaPlayer.create(this, id);
             mPlayer.start();
         }
+    }
+
+    void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 }

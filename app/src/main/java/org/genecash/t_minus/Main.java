@@ -170,12 +170,14 @@ public class Main extends Activity {
             layout.setGravity(Gravity.CENTER);
 
             NumberPicker picker1 = new NumberPicker(this);
+            picker1.setTextSize(100);
             picker1.setMaxValue(5);
             picker1.setMinValue(0);
             picker1.setValue(calendar.get(Calendar.SECOND) / 10);
             layout.addView(picker1, 0);
 
             NumberPicker picker2 = new NumberPicker(this);
+            picker2.setTextSize(100);
             picker2.setMaxValue(9);
             picker2.setMinValue(0);
             picker2.setValue(calendar.get(Calendar.SECOND) % 10);
@@ -203,9 +205,8 @@ public class Main extends Activity {
 
     // save new setting & reset countdown
     void save() {
-        // Log.e("T-Minus", "Setting: " + calendar);
-        // NumberPicker.OnValueChangeListener fires a LOT
         SharedPreferences.Editor editor = prefs.edit();
+        calendar.set(Calendar.MILLISECOND, 0);
         editor.putLong(KEY_SETTING, calendar.getTimeInMillis());
         editor.apply();
         launchTime = calendar.getTimeInMillis();

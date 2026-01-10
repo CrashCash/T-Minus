@@ -262,9 +262,9 @@ public class Main extends Activity {
         }
         mapSounds.put(0, map);
 
-        // sounds for last 15 minutes
+        // sounds for last 60 minutes
         id2 = getResources().getIdentifier("minutes", "raw", pkg);
-        for (int i = 2; i < 16; i++) {
+        for (int i = 2; i < 60; i++) {
             map = new HashMap<>();
             id1 = getResources().getIdentifier("digit" + i, "raw", pkg);
             sounds = new ArrayList<>();
